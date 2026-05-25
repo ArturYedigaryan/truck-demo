@@ -1,0 +1,30 @@
+<div
+  class="bg-color-primary h-100 pr-55 pl-55 pb-68 d-flex flex-direction-column justify-content-between"
+>
+  <div
+    class="d-flex justify-content-center color-white fs-24 line-height-100"
+    [style.padding-top.%]="30"
+  >
+    Hi {{ currentUser()?.name }}, press "Start Shift" to start working on jobs.
+  </div>
+
+  <div class="d-flex flex-direction-column gap-18">
+    <p-button
+      label="Start shift"
+      styleClass="w-100"
+      class="w-100"
+      severity="info"
+      size="large"
+      (click)="startShift()"
+      [loading]="loading()"
+    />
+    <p-button
+      label="Log out"
+      styleClass="w-100 border-color-gray"
+      class="w-100 border-color-gray fw-400"
+      size="large"
+      (click)="logout()"
+      [loading]="loading()"
+    />
+  </div>
+</div>

@@ -1,0 +1,123 @@
+<p-accordion-panel [value]="transportJob().jobId">
+  <p-accordion-header>
+    <div class="d-flex flex-direction-column w-100">
+      <div class="d-flex flex-direction-column gap-4">
+        <div class="d-flex gap-8 align-items-center">
+          <div class="color-gray-900 fw-400">
+            {{ transportJob().date | date: 'dd/MM/yyyy HH:mm' }}
+          </div>
+        </div>
+
+        <div class="d-flex gap-12 fs-13 align-items-center">
+          <span class="color-gray-700">{{ transportJob().notCollected }} Not collected</span>
+          <span class="point"> </span>
+          <span class="color-green-600">{{ transportJob().collected }} Collected</span>
+          <span class="point"></span>
+          <span class="color-blue-700">{{ transportJob().delivered }} Delivered</span>
+        </div>
+      </div>
+      <div class="d-flex flex-direction-column gap-8">
+        @for (driver of transportJob().drivers; track driver.assignmentId) {
+          <div class="d-flex justify-content-end align-items-center">
+            @if (driver.status === transportJobDriverStatus.NotStarted) {
+              <p-button
+                label="Start"
+                class="fw-500"
+                size="large"
+                (click)="onStart($event, driver.assignmentId)"
+                [loading]="loading()"
+              />
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <ng-template #toggleicon let-active="active">
+      @if (active) {
+        <p-button icon="pi pi-angle-down" severity="secondary" size="small" [loading]="loading()" />
+      } @else {
+        <p-button
+          icon="pi pi-angle-right"
+          severity="secondary"
+          size="small"
+          [loading]="loading()"
+        />
+      }
+    </ng-template>
+  </p-accordion-header>
+  <p-accordion-content>
+    <div class="d-flex flex-direction-column gap-20">
+      @for (cargo of transportJob().cargos; track cargo.cargoId) {
+        <div class="bg-color-blue-900-50 p-16 border-radius-8 d-flex flex-direction-column gap-13">
+          <div class="d-flex justify-content-between">
+            <div class="d-flex flex-direction-column gap-8">
+              <div class="fs-18 fw-500">
+                {{ cargo.description }}
+              </div>
+              <div class="d-flex flex-wrap gap-12 align-items-center">
+                <div class="d-flex gap-4">
+                  <span class="color-gray-900-50">Qty</span>
+                  <span>{{ cargo.quantity }}</span>
+                </div>
+                <span class="point"></span>
+                <div class="d-flex gap-4">
+                  <span class="color-gray-900-50">Collection time: </span>
+                  <span>{{ cargo.date | date: 'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+              </div>
+            </div>
+            @if (transportJob().started) {
+              @if (cargo.status === transportJobCargoStatus.NotCollected) {
+                <p-button
+                  label="Collect"
+                  class="fw-500"
+                  size="large"
+                  (click)="onCollect(cargo)"
+                  [loading]="loading()"
+                />
+              }
+              @if (cargo.status === transportJobCargoStatus.Collected) {
+                <p-button
+                  label="Deliver"
+                  class="fw-500"
+                  size="large"
+                  (click)="onDeliver(cargo)"
+                  [loading]="loading()"
+                />
+              }
+            }
+          </div>
+
+          <div class="d-flex flex-direction-column gap-4">
+            <img src="assets/images/steps.svg" width="420" alt="" />
+
+            <div class="d-flex fw-500">
+              <div
+                class="d-flex flex-direction-column gap-4"
+                [style.min-width.px]="350"
+                [style.max-width.px]="385"
+                [style.width.px]="385"
+              >
+                <span class="overflow-hidden text-overflow-ellipsis">
+                  {{ cargo.from }}
+                </span>
+              </div>
+
+              <div
+                class="d-flex flex-direction-column gap-4"
+                [style.min-width.px]="350"
+                [style.max-width.px]="385"
+                [style.width.px]="385"
+              >
+                <span class="overflow-hidden text-overflow-ellipsis">
+                  {{ cargo.to }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </p-accordion-content>
+</p-accordion-panel>

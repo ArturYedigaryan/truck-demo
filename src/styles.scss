@@ -1,0 +1,17 @@
+/* You can add global styles to this file, and also import other style files */
+@import "primeicons/primeicons.css";
+@import url("src/app/shared/styles/_variables.scss");
+@import url('src/app/shared/styles/_reset.scss');
+@import url("src/app/shared/styles/_mixins.scss");
+@import url("src/app/shared/styles/_elements.scss");
+@import url("src/app/shared/styles/_forms.scss");
+@import url("src/app/shared/styles/components/_dialog.scss");
+@import url("src/app/shared/styles/components/_accordion.scss");
+
+.content-heigth {
+    height: calc(100vh - 60px);
+}
+
+.list-height {
+    height: calc(100vh - 299px);
+}

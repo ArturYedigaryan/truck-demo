@@ -1,0 +1,24 @@
+<div class="p-24 h-100 d-flex flex-direction-column gap-20">
+  <app-dashboard-list-header />
+  <app-dashboard-list-filter />
+
+  <div class="overflow-auto list-height">
+    @if (filteredData().length) {
+      <p-accordion [multiple]="true">
+        @for (item of filteredData(); track $index) {
+          <app-dashboard-list-card [transportJob]="item" />
+        }
+      </p-accordion>
+    } @else {
+      <shared-empty-data
+        [title]="
+          jobs().length
+            ? 'No result found that match your current search'
+            : 'No allocated jobs to show'
+        "
+      />
+    }
+  </div>
+</div>
+
+<app-set-vehicle-registration-number />

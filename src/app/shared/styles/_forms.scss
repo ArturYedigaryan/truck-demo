@@ -1,0 +1,27 @@
+label {
+  .required {
+    color: var(--red-700);
+  }
+}
+
+.validation-control-error {
+  color: var(--red-700);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.25px;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    min-width: 14px;
+    width: 14px;
+    height: 14px;
+    mask-repeat: no-repeat;
+    mask-size: cover;
+    margin-right: 6px;
+    vertical-align: middle;
+    background: var(--red-700);
+    mask: url('../../../assets/images/info.svg');
+  }
+}

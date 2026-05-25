@@ -1,0 +1,40 @@
+<div
+  class="bg-color-blue-100 pb-20 pt-20 pl-16 pr-16 border-radius-8 d-flex justify-content-between"
+>
+  <div class="d-flex flex-direction-column gap-8 justify-content-between">
+    <div class="d-flex gap-12 align-items-center">
+      <div class="fw-500 fs-18">{{ currentUser()?.name }}</div>
+      <div class="d-flex gap-12 align-items-center">
+        <div class="point"></div>
+        <div>{{ jobs().length }} Allocated jobs</div>
+      </div>
+    </div>
+    <div class="d-flex gap-8 align-items-center">
+      <div class="fs-24 fw-500">
+        {{ selectedVehicle()?.registration }}
+      </div>
+
+      <p-button
+        icon="pi pi-pencil"
+        [text]="true"
+        size="small"
+        (click)="openVehicleNumber()"
+        [loading]="loading()"
+      />
+    </div>
+  </div>
+  <div class="d-flex flex-direction-column gap-10 align-items-end fs-20">
+    <div
+      class="bg-color-blue-200 pt-10 pr-8 pb-10 pl-8 align-items-center fw-500 d-flex gap-6 border-radius-8"
+    >
+      <em class="pi pi-clock fs-15"></em>
+      <shared-timer [startDate]="currentUser()?.shiftStart!" />
+    </div>
+    <div class="d-flex gap-4 color-gray-900-50 align-items-center gap-8">
+      <span> Started at: </span>
+      <span class="fw-500">
+        {{ currentUser()?.shiftStart | date: 'dd/MM/yyyy HH:mm' }}
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,5 @@
+@if(currentUser()?.shiftStart) {
+<app-dashboard-list />
+} @else {
+<app-start-shift />
+}

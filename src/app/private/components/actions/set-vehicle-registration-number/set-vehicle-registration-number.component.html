@@ -1,0 +1,52 @@
+<p-dialog
+  [visible]="isVisible()"
+  (visibleChange)="hideDialog()"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  [style]="{ width: '588px' }"
+  header="Vehicle registration"
+  styleClass="sm:w-30rem w-11/12"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="form" class="flex flex-col gap-3">
+      <div class="d-flex flex-direction-column gap-4">
+        <label for="vehicleId">Vehicle registration number <span class="required">*</span></label>
+        <p-select
+          [options]="vehicles()"
+          [filter]="true"
+          formControlName="vehicleId"
+          optionLabel="registration"
+          optionValue="vehicleId"
+          [showClear]="true"
+          appendTo="body"
+          placeholder="Select"
+        />
+        @if(controls.vehicleId?.invalid && controls.vehicleId?.touched) {
+        <small class="validation-control-error"> Vehicle registration number is required </small>
+        }
+      </div>
+    </form>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="d-flex gap-8">
+      <p-button
+        type="button"
+        label="Cancel"
+        class="p-button-text"
+        size="large"
+        (click)="hideDialog()"
+        [loading]="loading()"
+      />
+      <p-button
+        type="button"
+        label="Save"
+        size="large"
+        class="btn-primary"
+        (click)="submit()"
+        [loading]="loading()"
+        [disabled]="form.invalid"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,117 @@
+@mixin margin($direction, $value, $unit: px) {
+  @if $direction ==top {
+    margin-top: #{$value}#{$unit};
+  } @else if $direction ==right {
+    margin-right: #{$value}#{$unit};
+  } @else if $direction ==bottom {
+    margin-bottom: #{$value}#{$unit};
+  } @else if $direction ==left {
+    margin-left: #{$value}#{$unit};
+  } @else {
+    margin: #{$value}#{$unit};
+  }
+}
+
+@mixin generate-margin-classes($start: 0, $end: 40, $unit: px) {
+  @for $i from $start through $end {
+    .mt-#{$i} {
+      @include margin(top, $i, $unit);
+    }
+
+    .mr-#{$i} {
+      @include margin(right, $i, $unit);
+    }
+
+    .mb-#{$i} {
+      @include margin(bottom, $i, $unit);
+    }
+
+    .ml-#{$i} {
+      @include margin(left, $i, $unit);
+    }
+
+    .m-#{$i} {
+      @include margin(all, $i, $unit);
+    }
+  }
+}
+
+@mixin padding($direction, $value, $unit: px) {
+  @if $direction ==top {
+    padding-top: #{$value}#{$unit};
+  } @else if $direction ==right {
+    padding-right: #{$value}#{$unit};
+  } @else if $direction ==bottom {
+    padding-bottom: #{$value}#{$unit};
+  } @else if $direction ==left {
+    padding-left: #{$value}#{$unit};
+  } @else {
+    padding: #{$value}#{$unit};
+  }
+}
+
+@mixin generate-padding-classes($start: 1, $end: 100, $unit: px) {
+  @for $i from $start through $end {
+    .pt-#{$i} {
+      @include padding(top, $i, $unit);
+    }
+
+    .pr-#{$i} {
+      @include padding(right, $i, $unit);
+    }
+
+    .pb-#{$i} {
+      @include padding(bottom, $i, $unit);
+    }
+
+    .pl-#{$i} {
+      @include padding(left, $i, $unit);
+    }
+
+    .p-#{$i} {
+      @include padding(all, $i, $unit);
+    }
+  }
+}
+
+@mixin font-size($value, $unit: px) {
+  font-size: #{$value}#{$unit};
+}
+
+@mixin generate-font-size-classes($start: 1, $end: 40, $unit: px) {
+  @for $i from $start through $end {
+    .fs-#{$i} {
+      @include font-size($i, $unit);
+    }
+  }
+}
+
+@mixin w($value, $unit: '%') {
+  width: #{$value}#{$unit};
+}
+
+@mixin generate-with-classes($start: 1, $end: 100, $unit: '%') {
+  @for $i from $start through $end {
+    .w-#{$i} {
+      @include w($i, $unit);
+    }
+  }
+}
+
+@mixin gap($value, $unit: px) {
+  gap: #{$value}#{$unit};
+}
+
+@mixin generate-gap-classes($start: 1, $end: 40, $unit: px) {
+  @for $i from $start through $end {
+    .gap-#{$i} {
+      @include gap($i, $unit);
+    }
+  }
+}
+
+@include generate-margin-classes();
+@include generate-padding-classes();
+@include generate-font-size-classes();
+@include generate-with-classes();
+@include generate-gap-classes();

@@ -1,0 +1,183 @@
+{
+  "users": [
+    {
+      "driverId": "drv-1",
+      "email": "driver1@truck.local",
+      "password": "password",
+      "name": "Alex Driver",
+      "locationId": "loc-1",
+      "shiftStart": null,
+      "shiftEnd": null
+    },
+    {
+      "driverId": "drv-2",
+      "email": "driver2@truck.local",
+      "password": "password",
+      "name": "Sam Hauler",
+      "locationId": "loc-1",
+      "shiftStart": null,
+      "shiftEnd": null
+    },
+    {
+      "driverId": "drv-3",
+      "email": "admin@truck.local",
+      "password": "admin",
+      "name": "Admin Demo",
+      "locationId": "loc-1",
+      "shiftStart": null,
+      "shiftEnd": null
+    }
+  ],
+  "vehicles": [
+    { "vehicleId": "veh-1", "registration": "AB12 CDE", "locationId": "loc-1" },
+    { "vehicleId": "veh-2", "registration": "FG34 HIJ", "locationId": "loc-1" },
+    { "vehicleId": "veh-3", "registration": "KL56 MNO", "locationId": "loc-1" },
+    { "vehicleId": "veh-4", "registration": "PQ78 RST", "locationId": "loc-2" },
+    { "vehicleId": "veh-5", "registration": "UV90 WXY", "locationId": "loc-1" },
+    { "vehicleId": "veh-6", "registration": "ZX44 EFG", "locationId": "loc-1" }
+  ],
+  "jobs": [
+    {
+      "jobId": "job-1",
+      "date": "2026-05-22T08:00:00Z",
+      "notCollected": 2,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-1", "driverId": "drv-1", "vehicleId": "veh-1", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-1", "description": "Steel pipes", "quantity": 10, "date": "2026-05-22T09:00:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" },
+        { "cargoId": "crg-2", "description": "Drilling fluid drums", "quantity": 4, "date": "2026-05-22T09:30:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    },
+    {
+      "jobId": "job-2",
+      "date": "2026-05-22T10:00:00Z",
+      "notCollected": 1,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-2", "driverId": "drv-1", "vehicleId": "veh-3", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-3", "description": "Offshore tooling crate", "quantity": 1, "date": "2026-05-22T10:30:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Montrose Quay" }
+      ]
+    },
+    {
+      "jobId": "job-3",
+      "date": "2026-05-22T07:00:00Z",
+      "notCollected": 0,
+      "collected": 1,
+      "delivered": 0,
+      "started": true,
+      "drivers": [
+        { "assignmentId": "asn-3", "driverId": "drv-1", "vehicleId": "veh-1", "status": 1 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-4", "description": "Mud chemicals pallet", "quantity": 6, "date": "2026-05-22T07:30:00Z", "status": 1, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    },
+    {
+      "jobId": "job-4",
+      "date": "2026-05-22T11:00:00Z",
+      "notCollected": 1,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-4", "driverId": "drv-2", "vehicleId": "veh-3", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-5", "description": "ROV spares container", "quantity": 1, "date": "2026-05-22T11:30:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    },
+    {
+      "jobId": "job-5",
+      "date": "2026-05-21T14:00:00Z",
+      "notCollected": 0,
+      "collected": 1,
+      "delivered": 1,
+      "started": true,
+      "drivers": [
+        { "assignmentId": "asn-5", "driverId": "drv-2", "vehicleId": "veh-1", "status": 1 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-6", "description": "Backload returns", "quantity": 3, "date": "2026-05-21T14:30:00Z", "status": 2, "from": "Peterhead Port", "to": "Aberdeen Depot" }
+      ]
+    },
+    {
+      "jobId": "job-6",
+      "date": "2026-05-22T13:00:00Z",
+      "notCollected": 1,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-6", "driverId": "drv-1", "vehicleId": "veh-2", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-7", "description": "Casing pipe joints", "quantity": 8, "date": "2026-05-22T13:30:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    },
+    {
+      "jobId": "job-7",
+      "date": "2026-05-22T15:00:00Z",
+      "notCollected": 2,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-7", "driverId": "drv-1", "vehicleId": "veh-2", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-8", "description": "Reusable mud tanks", "quantity": 3, "date": "2026-05-22T15:30:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" },
+        { "cargoId": "crg-9", "description": "Drill bit assembly", "quantity": 1, "date": "2026-05-22T16:00:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    },
+    {
+      "jobId": "job-8",
+      "date": "2026-05-22T06:30:00Z",
+      "notCollected": 0,
+      "collected": 1,
+      "delivered": 0,
+      "started": true,
+      "drivers": [
+        { "assignmentId": "asn-8", "driverId": "drv-1", "vehicleId": "veh-5", "status": 1 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-10", "description": "Wireline tools", "quantity": 4, "date": "2026-05-22T07:00:00Z", "status": 1, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    },
+    {
+      "jobId": "job-9",
+      "date": "2026-05-22T16:30:00Z",
+      "notCollected": 1,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-9", "driverId": "drv-1", "vehicleId": "veh-6", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-11", "description": "Survey equipment cases", "quantity": 2, "date": "2026-05-22T17:00:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Montrose Quay" }
+      ]
+    },
+    {
+      "jobId": "job-10",
+      "date": "2026-05-22T12:00:00Z",
+      "notCollected": 1,
+      "collected": 0,
+      "delivered": 0,
+      "started": false,
+      "drivers": [
+        { "assignmentId": "asn-10", "driverId": "drv-2", "vehicleId": "veh-2", "status": 0 }
+      ],
+      "cargos": [
+        { "cargoId": "crg-12", "description": "Crew change baggage", "quantity": 5, "date": "2026-05-22T12:30:00Z", "status": 0, "from": "Aberdeen Depot", "to": "Peterhead Port" }
+      ]
+    }
+  ]
+}

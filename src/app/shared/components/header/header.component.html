@@ -1,0 +1,15 @@
+<div class="bg-color-primary pt-15 pb-15 pl-34 pr-34 d-flex justify-content-between">
+  <a [routerLink]="['/']">
+    <img src="assets/logo.svg" width="196" height="30" alt="logo" priority />
+  </a>
+
+  @if (currentUser()?.shiftStart && isLoggedIn()) {
+    <p-button
+      label="Finish shift"
+      styleClass="border-color-gray fw-400"
+      [loading]="loading()"
+      size="small"
+      (click)="finishShift()"
+    />
+  }
+</div>

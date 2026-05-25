@@ -1,0 +1,25 @@
+p-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  p-accordion-panel {
+    border: 1px solid var(--border-color) !important;
+    border-radius: 6px;
+
+    p-accordion-header {
+      padding: 12px 16px !important;
+      flex-direction: row-reverse !important;
+      display: flex !important;
+      gap: 16px !important;
+      align-items: flex-start !important;
+    }
+  }
+
+  .p-accordion-content {
+    padding: 10px 0 0;
+    border: 0;
+    color: var(--base-color);
+    position: relative;
+  }
+}

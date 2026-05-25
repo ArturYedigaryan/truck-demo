@@ -1,0 +1,13 @@
+.p-dialog {
+    .p-dialog-header {
+        .p-dialog-title {
+            line-height: 28px;
+        }
+
+        border-bottom: 1px solid var(--gray);
+    }
+
+    .p-dialog-footer {
+        border-top: 1px solid var(--gray);
+    }
+}
