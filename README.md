@@ -1,298 +1,100 @@
 # Truck
 
-A small demo app showing what a truck-driver shift dashboard might look like.
+A single-role driver shift dashboard: log in, start a shift, pick a truck, work through the assigned transport jobs (collect + deliver cargo per item), finish the shift.
 
-A driver logs in, starts a shift, picks a truck, sees the transport jobs assigned to that truck, then marks each cargo item as collected and delivered. When the shift is finished, they log out.
-
-The app is fully self-contained — there's nothing to install on a server, no database to set up, and no third-party account to sign up for. A tiny fake backend ships in this repo and runs alongside the app.
-
-This document explains **everything** you need to know to get it running on your machine, even if you've never touched Angular or Node.js before.
+Stack: Angular 20 · NgRx 20 (+ ngrx-immer) · PrimeNG 20 · Express 4 mock backend with a JSON file store. Single repo, single `npm start`.
 
 ---
 
-## 1. What you need on your machine
+## 1. Domain & Scope
 
-You need three things:
+**Domain.** A truck driver's shift: one driver, one assigned vehicle at a time, a list of jobs filtered by the (driver, vehicle) pair, and a per-cargo-item state machine (`not collected → collected → delivered`).
 
-1. **Node.js**, version 20 or newer.
-   It includes `npm`, the package manager we use.
-   Download it from <https://nodejs.org/> — pick the **LTS** version, run the installer, accept the defaults.
+**Why this domain.** It's small enough to fit in one screen for one role, but it forces real decisions: a non-trivial filtering rule (`driverId` AND `vehicleId`), a per-row mutation flow that has to round-trip to a backend, two cross-cutting auth states (logged-in vs shift-active), and a shape where the UI list has to refresh after every mutation. That's enough surface to make the architectural choices matter.
 
-2. **A terminal** to type commands into.
-   - Windows: **PowerShell** (already installed) or **Git Bash** (comes with Git).
-   - Mac / Linux: any terminal app.
+**In scope:**
+- Login + session restore from `localStorage`
+- Shift lifecycle (start / finish)
+- Vehicle switcher (per-driver)
+- Per-cargo mutation flow with optimistic-feeling UX (action → effect → reload)
+- Self-contained mock backend with seed/runtime DB split
 
-3. **A modern browser** (Chrome, Edge, Firefox, Safari).
-
-To check that Node.js is installed, open a terminal and type:
-
-```
-node --version
-npm --version
-```
-
-You should see two version numbers, e.g. `v22.15.1` and `10.9.2`. If you see "command not found", restart your terminal after installing Node.
-
-You do **not** need: Docker, a database, a backend server, any cloud account, or any code editor.
+**Out of scope (deliberate):**
+- Multi-role UI (admin exists in the seed, no separate screen)
+- Real auth (token is unsigned)
+- Tests beyond Karma scaffold
+- Offline / service worker
+- i18n, theming switch, accessibility audit
 
 ---
 
-## 2. Getting the code
+## 2. Architecture
 
-If you already have this folder on disk, skip to step 3.
+Two route trees lazy-loaded behind guards (`authGuard` for `private/`, `notAuthGuard` for `public/`). All state in NgRx feature slices (`auth`, `user`, `truck`). All HTTP goes through a 3-link functional interceptor chain. Mock BE runs in the same `npm start` via `concurrently`.
 
-Otherwise, in your terminal:
+**Decisions made (and what was rejected):**
 
-```
-git clone https://github.com/ArturYedigaryan/truck-demo.git
-cd truck-demo
-```
+1. **Standalone components + functional providers**, no `NgModule`. Rejected NgModules — they add ceremony with zero payoff at this size and standalone is the Angular 20 default direction.
+2. **NgRx feature state (`createFeature` + `ngrx-immer`)** per slice. Rejected Signals + plain services: the truck slice has a cross-effect flow (vehicles loaded → auto-select first → trigger jobs load → mutations trigger re-load) that's cleaner as a graph of effects than as imperative service calls. Rejected hand-rolled spread-based reducers: the truck state is nested enough that `immerOn` is shorter and harder to corrupt.
+3. **Functional effects with `inject()`** (`{ functional: true }`). Rejected class-based effects — no DI win at this size, more boilerplate.
+4. **Three-link interceptor chain** (`loader → apiRequest → auth`). Each does one thing: loader counts in-flight requests, apiRequest prepends the base URL, auth attaches `Authorization`. Rejected a single mega-interceptor and rejected per-service header logic.
+5. **Two route trees behind guards instead of one tree with per-route guards.** Both register at `path: ''`. The guard picks which tree resolves. Rejected a flat route file: this keeps `public/` and `private/` cleanly partitioned and lazy-loaded independently.
+6. **Mock Express + JSON file**, not `json-server`. Domain rules live on the BE (composite-key job filter, shift state, cargo status transitions). `json-server` is too generic to express those.
+7. **Token: base64-encoded JSON with `exp`, no signature.** Rejected JWT-with-signature: a local mock has no verifying authority — the signature would be decoration. Kept `exp` because it's the only field the FE actually consults.
+8. **`db.seed.json` (committed) vs `db.json` (gitignored runtime).** Rejected committing the live DB. Reviewers cloning the repo always get the same starting state; iteration doesn't pollute git.
+9. **Custom PrimeNG preset (`MyPreset`)** instead of default theme. Tokens, spacing, and accent colors live in one place (`src/app/shared/styles/`).
+
+**If this grew 10x.** Split `libs/` for state and shared UI (the truck slice would stop being the only consumer), replace the unsigned token with a real auth provider, push the (driver, vehicle, job, cargo) state-machine rules to a typed reducer-helper instead of leaving them implicit in effects, and add real tests.
 
 ---
 
-## 3. Installing the project's libraries
+## 3. Trade-offs and Cuts
 
-Make sure you're in the project folder (the one containing `package.json`), then run:
+**Not done, on purpose:**
+- No unit / e2e tests beyond Karma scaffolding — coverage % is explicitly not the bar here.
+- No `/auth/refresh` flow — the token lives 30 days, that's the refresh strategy.
+- No optimistic UI — every mutation waits for the round-trip. The mock is local, so latency isn't a UX problem worth solving here.
+
+**+1 day:** add a change-password page (the `ChangePassword` interface is already stubbed at `shared/interfaces/auth/change-password.interface.ts`), a couple of meaningful unit tests on the cross-effect flow (`loadVehiclesByDriverSuccess → vehicleSelected → loadTransportJobs`), and tighten the cargo-status transitions on the BE so invalid jumps return 409.
+
+**+1 week:** swap the mock BE for a real one behind the same FE contract (the interceptor + service layer is already shaped for it), pull the truck slice into a `libs/state/truck` lib, and build out the admin side — an admin panel with cargo creation, a drivers tracking list, and a driver sign-up flow.
+
+---
+
+## 4. AI Usage
+
+**Tool:** Claude Code.
+
+**Posture:** AI was used as a productive assistant, not as the architect. It accelerated the work on layers where the decisions were already made; design, data shape, and state-machine work stayed hand-driven.
+
+**Built with AI:**
+- **BE-side logic** — `mock-api/server.js`: endpoints, token issuance, seed/runtime DB split, and the shift / job / cargo transition rules.
+- **App styles** — the SCSS under `src/app/shared/styles/` plus the custom PrimeNG `MyPreset`: theme tokens, form / element / dialog / accordion overrides.
+- **CSS folder structure** — the `_variables / _mixins / _reset / _forms / _elements` partitioning under `shared/styles/`.
+
+**Driven by hand:** NgRx slices (actions / effects / reducers / states), routing + guards, the interceptor chain, services, dashboard component composition, the (driver, vehicle, job, cargo) data shape and rules.
+
+**Why this split.** AI handled the layers with no novel decisions — file-backed CRUD, theme tokens, SCSS scaffolding. Human time went into the FE state machine and component composition, where the architectural choices actually matter.
+
+---
+
+## 5. What to Look At First
+
+If you have 10 minutes:
+
+1. **`src/app/app.config.ts`** — one screen, shows the whole shape: standalone bootstrap, three feature slices via `provideState`, strict NgRx runtime checks, the interceptor chain, the app initializer hook, the custom PrimeNG preset.
+2. **`src/app/store/effects/truck.effects.ts`** — the only file where the application logic actually lives. Notice the cross-effect chain (`loadVehiclesByDriverSuccess → vehicleSelected → loadTransportJobs`) and the post-mutation reload pattern (`startJobSuccess | confirmCollectionSuccess | confirmDeliverySuccess → loadTransportJobs`). Everything else is wiring.
+3. **`mock-api/server.js`** + **`mock-api/db.seed.json`** — the BE contract and the composite-key filter rule. Reading these makes the FE's vehicle-switcher behavior make sense.
+
+---
+
+## Running
 
 ```
 npm install
-```
-
-This downloads everything the project needs into a folder called `node_modules/`. It will take a minute or two the first time. You only have to do this once — or again whenever someone changes `package.json`.
-
-You may see some yellow warnings during install; those are normal and safe to ignore.
-
----
-
-## 4. Starting the app
-
-Still in the project folder, run:
-
-```
 npm start
 ```
 
-Two things start at the same time:
+Then open <http://localhost:4200>. Seed accounts: `driver1@truck.local` / `password` (also `driver2@truck.local`, `admin@truck.local` / `admin`).
 
-| Name | What it is | URL |
-|---|---|---|
-| **WEB** | The Angular app — the user interface | <http://localhost:4200> |
-| **API** | A fake backend (Express) that serves data | <http://localhost:3000> |
-
-When both have started, you'll see something like this in your terminal:
-
-```
-[WEB] Local:   http://localhost:4200/
-[API] Mock API on http://localhost:3000
-[API] Seeded users:
-[API]   driver1@truck.local / password
-[API]   driver2@truck.local / password
-[API]   admin@truck.local / admin
-```
-
-The Angular server takes a few seconds to compile the first time. Subsequent reloads (after you edit a file) are instant.
-
----
-
-## 5. Opening the app in your browser
-
-Once both servers are up, open <http://localhost:4200> in your browser.
-
-You should see a login screen. Use one of these seeded accounts:
-
-| Email | Password |
-|---|---|
-| `driver1@truck.local` | `password` |
-| `driver2@truck.local` | `password` |
-| `admin@truck.local` | `admin` |
-
----
-
-## 6. Using the app
-
-After you log in:
-
-1. **Start shift screen** — first time only. Click **Start shift** to begin your working day.
-2. **Dashboard** — top bar shows your name, the selected truck's registration, and a running timer.
-3. **Switch truck** — click the pencil icon next to the registration number to change vehicles. The jobs list updates to show only the jobs assigned to that truck.
-4. **Job list** — each card shows the collection date, three cargo counters (not collected / collected / delivered) and a **Start** button.
-5. **Start a job** — click **Start**, confirm the dialog. The Start button disappears.
-6. **Expand a job** — click the arrow on the right of a card to see the cargo items.
-7. **Collect a cargo** — for each item, click **Collect** and confirm. The item moves to "Collected".
-8. **Deliver a cargo** — once collected, click **Deliver** and confirm.
-9. **Finish shift** — top-right of the page. Confirm, and you'll be logged out and returned to the login screen.
-
-Every action is sent to the fake backend and persisted in `mock-api/db.json`. If you close the browser and come back, your progress is still there.
-
----
-
-## 7. Stopping the app
-
-In the terminal where `npm start` is running, press **`Ctrl+C`**.
-
-Both the Angular server and the mock API will stop together.
-
----
-
-## 8. Resetting the data
-
-The fake backend keeps its state in `mock-api/db.json`. That file is created automatically the first time the mock API starts, by copying `mock-api/db.seed.json`. All your changes (shifts started, cargo collected, etc.) are saved into `db.json` — never into the seed file.
-
-To wipe everything and start fresh:
-
-1. Stop the app (`Ctrl+C`).
-2. Delete `mock-api/db.json`:
-   - Windows (PowerShell): `Remove-Item mock-api/db.json`
-   - Windows (cmd): `del mock-api\db.json`
-   - Mac / Linux / Git Bash: `rm mock-api/db.json`
-3. Run `npm start` again.
-
-The mock API will recreate `db.json` from the seed.
-
----
-
-## 9. Editing the seed data
-
-If you want different drivers, vehicles, or jobs in the demo, edit `mock-api/db.seed.json`, then reset the data (step 8).
-
-The shape of each entity is:
-
-```jsonc
-// users — accounts that can log in
-{
-  "driverId": "drv-1",
-  "email": "driver1@truck.local",
-  "password": "password",
-  "name": "Alex Driver",
-  "locationId": "loc-1",
-  "shiftStart": null,
-  "shiftEnd": null
-}
-
-// vehicles — trucks available at each location
-{
-  "vehicleId": "veh-1",
-  "registration": "AB12 CDE",
-  "locationId": "loc-1"
-}
-
-// jobs — transport jobs with nested drivers + cargos
-{
-  "jobId": "job-1",
-  "date": "2026-05-22T08:00:00Z",
-  "notCollected": 2,
-  "collected": 0,
-  "delivered": 0,
-  "started": false,
-  "drivers": [
-    { "assignmentId": "asn-1", "driverId": "drv-1", "vehicleId": "veh-1", "status": 0 }
-  ],
-  "cargos": [
-    {
-      "cargoId": "crg-1",
-      "description": "Steel pipes",
-      "quantity": 10,
-      "date": "2026-05-22T09:00:00Z",
-      "status": 0,
-      "from": "Aberdeen Depot",
-      "to": "Peterhead Port"
-    }
-  ]
-}
-```
-
-A few rules to keep in mind:
-
-- A user only sees vehicles whose `locationId` matches their own.
-- A job shows up for a user only if one of its `drivers` matches both the user's `driverId` **and** the selected vehicle's `vehicleId`.
-- Cargo `status`: `0` = not collected, `1` = collected, `2` = delivered.
-- Driver assignment `status`: `0` = not started, `1` = started.
-
----
-
-## 10. Common problems
-
-**`EADDRINUSE: address already in use :::3000`**
-Something else (often a leftover `node` process from a previous run) is using port 3000.
-
-Find and stop it:
-
-- Windows (PowerShell):
-  ```
-  Get-NetTCPConnection -LocalPort 3000 | Select-Object OwningProcess
-  Stop-Process -Id <the-PID> -Force
-  ```
-- Mac / Linux:
-  ```
-  lsof -i :3000
-  kill -9 <PID>
-  ```
-
-Then run `npm start` again.
-
-**Port 4200 in use**
-Same idea but with port 4200.
-
-**Blank page in browser**
-Check the terminal: both `[WEB]` and `[API]` lines must appear. If only `[WEB]` is up, the UI loads but every request fails because the fake backend isn't running.
-
-**"Invalid credentials" on login**
-Emails are case-sensitive. The passwords are exactly `password` (for drivers) and `admin` (for admin). If you changed `db.seed.json` and want those changes to apply, you also have to delete `db.json` (see step 8).
-
-**Browser still shows old data after editing the seed**
-You only edited the seed (template). Delete `mock-api/db.json` and restart.
-
-**`npm install` fails**
-You probably have a Node version older than 20. Check with `node --version` and upgrade.
-
----
-
-## 11. Project layout
-
-```
-truck/
-├── mock-api/                 The fake backend
-│   ├── server.js             Express app: handles login + all data endpoints
-│   ├── db.seed.json          Starting data (committed to git)
-│   ├── db.json               Live data (created at runtime, gitignored)
-│   └── README.md             Endpoint reference for developers
-│
-├── src/
-│   └── app/
-│       ├── public/           Pages anyone can visit (login)
-│       ├── private/          Pages that need a logged-in user (dashboard)
-│       ├── shared/           Reusable bits: services, guards, components
-│       └── store/            App state (using NgRx)
-│
-├── package.json              Scripts and dependency list
-└── README.md                 This file
-```
-
----
-
-## 12. Tech stack
-
-| Layer | Tools |
-|---|---|
-| UI | Angular 20.2, TypeScript 5.9 |
-| State | NgRx 20 (store + effects), ngrx-immer |
-| Components | PrimeNG 20 (`@primeuix/themes`) |
-| Backend (fake) | Express 4 |
-| Dev runner | `concurrently` (runs both servers in one terminal) |
-
----
-
-## 13. All available commands
-
-| Command | What it does |
-|---|---|
-| `npm install` | Install dependencies. Run this once after cloning, or when `package.json` changes. |
-| `npm start` | Start both the Angular dev server and the mock API together. **This is the normal command for development.** |
-| `npm run start:web` | Start only the Angular dev server (port 4200). Useful if the mock API is already running. |
-| `npm run start:api` | Start only the mock API (port 3000). |
-| `npm run build` | Build a production bundle into `dist/truck/`. |
-| `npm test` | Run unit tests (karma + jasmine). |
-
----
-
-That's all. If you got this far, you're up and running. Have fun.
+To reset state: stop the app, delete `mock-api/db.json`, start again.
